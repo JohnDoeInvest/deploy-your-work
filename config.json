@@ -1,0 +1,14 @@
+{
+  "agentvegan/agentvegan-server": {
+    "name": "prod-server",
+    "path": "/www/agentvegan-server",
+    "pre": [
+      "npm ci",
+      "npm run build"
+    ]
+  },
+  "agentvegan/agentvegan-frontend": {
+    "name": "prod-frontend",
+    "path": "/www/agentvegan-frontend"
+  }
+}
