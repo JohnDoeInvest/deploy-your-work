@@ -1,3 +1,6 @@
+const dotenv = require('dotenv')
+dotenv.config()
+
 const express = require('express')
 const execa = require('execa')
 const { Octokit } = require('@octokit/rest')
@@ -89,3 +92,5 @@ async function deploy (config, tag) {
 
     return Promise.resolve()
 }
+
+app.listen(PORT, () => console.log(`Listening to port ${PORT}`))
