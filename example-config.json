@@ -1,0 +1,10 @@
+{
+  "full_github/path": {
+    "name": "prod-server",
+    "path": "/path/to/code",
+    "pre": [
+      "npm ci",
+      "npm run build"
+    ]
+  }
+}
