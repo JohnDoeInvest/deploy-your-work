@@ -40,7 +40,7 @@ async function handleEvent (eventType, payload) {
     if (eventType === 'release') {
         if (payload.action === 'published') {
             // We just updated the code and run everything
-            return deploy(config, payload.release.tag_name)
+            return deploy(config, payload.release.tag_name, payload.repository.clone_url)
         } else if (payload.action === 'deleted') {
             // This is a rollback, we are going to get the latest release from GitHub and check that out
             const repsonse = await octokit.repos.getLatestRelease({
@@ -50,7 +50,7 @@ async function handleEvent (eventType, payload) {
             if (repsonse.status !== 200) {
                 throw new Error(`Unable to get latest release for "${payload.repository.full_name}"`)
             }
-            return deploy(config, repsonse.data.tag_name)
+            return deploy(config, repsonse.data.tag_name, payload.repository.clone_url)
         }
     }
 }
@@ -68,7 +68,7 @@ async function executeCommand (pm2Id, command, options) {
     return subprocess
 }
 
-async function deploy (config, tag) {
+async function deploy (config, tag, cloneUrl) {
     if (currentCommands[config.name] !== undefined) {
         await currentCommands[config.name].cancel()
     }
