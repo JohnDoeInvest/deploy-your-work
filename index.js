@@ -75,7 +75,7 @@ async function deploy (config, tag, cloneUrl) {
 
     try {
         const url = cloneUrl.replace('https://github.com', 'https://' + GITHUB_ACCESS_TOKEN + '@github.com')
-        await execute(config.name, 'git', ['fetch', url], { cwd: config.path })
+        await execute(config.name, 'git', ['fetch', url, '--tags'], { cwd: config.path })
         await execute(config.name, 'git', ['checkout', tag], { cwd: config.path })
         if (config.pre) {
             for (const pre of config.pre) {
