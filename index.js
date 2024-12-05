@@ -54,7 +54,7 @@ async function handleEvent (eventType, payload) {
         }
     } else if (eventType === 'push' && config.deployAllCommits && payload.ref === 'refs/heads/' + config.deployAllCommits) {
         // We only do this if the config is setup AND if the pushed branch matches.
-        return deploy(config)
+        return deploy(config, undefined, payload.repository.clone_url)
     }
 }
 
