@@ -52,6 +52,9 @@ async function handleEvent (eventType, payload) {
             }
             return deploy(config, repsonse.data.tag_name, payload.repository.clone_url)
         }
+    } else if (eventType === 'push' && config.deployAllCommits && payload.ref === 'refs/heads/' + config.deployAllCommits) {
+        // We only do this if the config is setup AND if the pushed branch matches.
+        return deploy(config)
     }
 }
 
@@ -76,7 +79,11 @@ async function deploy (config, tag, cloneUrl) {
     try {
         const url = cloneUrl.replace('https://github.com', 'https://' + GITHUB_ACCESS_TOKEN + '@github.com')
         await execute(config.name, 'git', ['fetch', url, '--tags'], { cwd: config.path })
-        await execute(config.name, 'git', ['checkout', tag], { cwd: config.path })
+        if (tag) {
+            await execute(config.name, 'git', ['checkout', tag], { cwd: config.path })
+        } else {
+            await execute(config.name, 'git', ['checkout', config.deployAllCommits], { cwd: config.path })
+        }
         if (config.pre) {
             for (const pre of config.pre) {
                 await executeCommand(config.name, pre, { cwd: config.path })

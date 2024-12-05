@@ -2,6 +2,7 @@
   "full_github/path": {
     "name": "prod-server",
     "path": "/path/to/code",
+    "deployAllCommits": "main",
     "pre": [
       "npm ci",
       "npm run build"
