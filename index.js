@@ -78,11 +78,12 @@ async function deploy (config, tag, cloneUrl) {
 
     try {
         const url = cloneUrl.replace('https://github.com', 'https://' + GITHUB_ACCESS_TOKEN + '@github.com')
-        await execute(config.name, 'git', ['fetch', url, '--tags'], { cwd: config.path })
         if (tag) {
+            await execute(config.name, 'git', ['fetch', url, '--tags'], { cwd: config.path })
             await execute(config.name, 'git', ['checkout', tag], { cwd: config.path })
         } else {
             await execute(config.name, 'git', ['checkout', config.deployAllCommits], { cwd: config.path })
+            await execute(config.name, 'git', ['pull', url], { cwd: config.path })
         }
         if (config.pre) {
             for (const pre of config.pre) {
