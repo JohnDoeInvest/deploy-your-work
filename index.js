@@ -7,6 +7,8 @@ const { Octokit } = require('@octokit/rest')
 const configs = require('./config.json')
 const utils = require('./utils')
 
+const logger = require('jdi-nodejs-logger')
+
 const GITHUB_WEBHOOK_SECRET = process.env.GITHUB_WEBHOOK_SECRET
 const GITHUB_ACCESS_TOKEN = process.env.GITHUB_ACCESS_TOKEN
 const PORT = process.env.PORT || 3000
@@ -31,7 +33,7 @@ app.post('/', (req, res) => {
 
   return handleEvent(eventType, req.body)
     .catch(err => {
-      console.error(err)
+      logger.error(err)
     })
 })
 
@@ -39,6 +41,7 @@ async function handleEvent (eventType, payload) {
     const config = configs[payload.repository.full_name]
     if (eventType === 'release') {
         if (payload.action === 'published') {
+            logger.info(`Deploying release: ${payload.repository.full_name} @ ${payload.release.tag_name}`)
             // We just updated the code and run everything
             return deploy(config, payload.release.tag_name, payload.repository.clone_url)
         } else if (payload.action === 'deleted') {
@@ -50,9 +53,11 @@ async function handleEvent (eventType, payload) {
             if (repsonse.status !== 200) {
                 throw new Error(`Unable to get latest release for "${payload.repository.full_name}"`)
             }
+            logger.info(`Rolling back release: ${payload.repository.full_name} @ ${repsonse.data.tag_name}`)
             return deploy(config, repsonse.data.tag_name, payload.repository.clone_url)
         }
     } else if (eventType === 'push' && config.deployAllCommits && payload.ref === 'refs/heads/' + config.deployAllCommits) {
+        logger.info(`Deploying release: ${payload.repository.full_name} @ Latest`)
         // We only do this if the config is setup AND if the pushed branch matches.
         return deploy(config, undefined, payload.repository.clone_url)
     }
@@ -87,7 +92,7 @@ async function deploy (config, tag, cloneUrl) {
         }
         if (config.pre) {
             for (const pre of config.pre) {
-                await executeCommand(config.name, pre, { cwd: config.path })
+                await executeCommand(config.name, pre, { cwd: config.path, env: { NODE_ENV: null } })
             }
         }
         await execute(config.name, 'pm2', ['restart', config.name])
@@ -102,4 +107,4 @@ async function deploy (config, tag, cloneUrl) {
     return Promise.resolve()
 }
 
-app.listen(PORT, () => console.log(`Listening to port ${PORT}`))
+app.listen(PORT, () => logger.info(`Listening to port ${PORT}`))

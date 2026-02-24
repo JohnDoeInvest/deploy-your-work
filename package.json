@@ -12,6 +12,7 @@
     "@octokit/rest": "^19.0.11",
     "dotenv": "^8.2.0",
     "execa": "^4.0.1",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "jdi-nodejs-logger": "github:johndoeinvest/jdi-nodejs-logger"
   }
 }
